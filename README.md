@@ -121,11 +121,9 @@ Read and complete `model_card.md`:
 
 [**Model Card**](model_card.md)
 
-Write 1 to 2 paragraphs here about what you learned:
+From this project, I learned that recommenders can take the values of certain features and compare them against against an ideal set of features' values. The influence of particular features on the final, generated recommendations can vary based on the weights assigned to these features. 
 
-- about how recommenders turn data into predictions
-- about where bias or unfairness could show up in systems like this
-
+As a result, an example of where bias or unfairness can show up in systems, like this recommender, is when we assign weights to features. The decision of choosing which features weigh more is made by the human, and humans are biased or may make decisions in a way that differs from another human's approach. For example, there is a greater bias and emphasis placed on a song's mood than on that song's genre. This is due to the intentional design of the my algorithm as I made the weight larger for the mood feature.
 
 ---
 
@@ -138,47 +136,44 @@ Combines reflection and model card framing from the Module 3 guidance. :contentR
 
 ## 1. Model Name
 
-Give your recommender a name, for example:
-
-> VibeFinder 1.0
+Songs for Your Mood
 
 ---
 
 ## 2. Intended Use
 
-- What is this system trying to do
-- Who is it for
-
-Example:
-
-> This model suggests 3 to 5 songs from a small catalog based on a user's preferred genre, mood, and energy level. It is for classroom exploration only, not for real users.
+- This system will try to recommend the top K songs to a user based on their listening profile. In particular, this system will look for songs that closely match with the user's genre, mood, energy, and acousticness preferences.
+- This system is made to be used by people who seek to listen to songs that match their preference and who value a mood match over sticking to song recommendations that stem from one genre. At the moment, the user may not have diverse music taste necesarily since the system currently accepts one value for each aforementioned feature. For example, a user's listening profile may list one genre only. As a side note, this is a class project, so this system is intended for hypothetical users.
 
 ---
 
 ## 3. How It Works (Short Explanation)
 
-Describe your scoring logic in plain language.
+This system will consider the values of a song's and a user's genre, mood, energy, and acousticness features. Comparisons will be made these values such that exact genre and mood matches are rewarded with points. 
 
-- What features of each song does it consider
-- What information about the user does it use
-- How does it turn those into a number
+Additionally, energy and acousticness features have a mathematical formula that rewards numerical proximity. This means that if the energy level and acousticness of a song is similar to a user's desired energy level and acousticness then we will see a higher score returned.
 
-Try to avoid code in this section, treat it like an explanation to a non programmer.
+Once the total points are calculated from these four comparisons, the score will be normalized by diving the total points by the possible maximum value for total points.
 
 ---
 
 ## 4. Data
 
-Describe your dataset.
+There are a total of 20 songs in data/songs.csv.
 
-- How many songs are in `data/songs.csv`
-- Did you add or remove any songs
-- What kinds of genres or moods are represented
+Initially, there were only 10 songs, but I added 10 more songs, so that there is a more diverse set of songs to work with.
+
+Examples of the kinds of genres represented in the data are: pop, lofi, rap.
+Examples of the kinds of moods represented in the data are: happy, chill, relaxed.
+
 - Whose taste does this data mostly reflect
+Most of the songs in this data set have a tempo that leans towards a more upbeat tone, so the data reflects the taste of someone who doesn't primarily listen to slower-paced music.
 
 ---
 
 ## 5. Strengths
+
+I was not able to test my system yet, but, based on personal observation, my recommender would work well for user profiles that prefer songs that are not slow-paced and that are positive and upbeat.
 
 Where does your recommender work well
 
@@ -190,6 +185,8 @@ You can think about:
 ---
 
 ## 6. Limitations and Bias
+
+I was not able to test my system yet, but, based on personal observation, my recommender would not work well for user profiles that prefer more somber and slow-paced songs due to the songs that are represented in my data set.
 
 Where does your recommender struggle
 
@@ -216,6 +213,11 @@ You do not need a numeric metric, but if you used one, explain what it measures.
 
 ## 8. Future Work
 
+If I had more time, I would:
+1) Further test my recommender
+2) Diversify my data set to include more slower-paced and somber music
+3) Incorporate semantics in the recommendation algorithm, so that mood comparisons are not rewarded for exact matches. I want to reward semantics and similar "vibes" for a song.
+
 If you had more time, how would you improve this recommender
 
 Examples:
@@ -228,9 +230,12 @@ Examples:
 
 ## 9. Personal Reflection
 
+I had a lot of fun designing and implementing this project. From this project, I was able to have a better idea of how real music recommenders use data to generate recommendations via quantifiable methods. Additionally, I saw how useful and nuanced it can be to plan the design and intent for how a recommender algorithm should be implemented. For me, the magic of recommenders is being revealed from behind the curtain by doing this project.
+
+This said, human judgement is still valuable in the designing and implementation of this model because a human (with the proper knowledge) can ensure the efficiency of algorithms. Additionally, humans will typically understand better the context of the results they are seeking to achieve and the information they will use to achieve this results and to create the model. Unless, all of this information is supplied in an efficient and full manner to a model or to an AI, assumptions will be made. These assumptions may or may not be true, but a human can vet these assumptions in their stead.
+
 A few sentences about what you learned:
 
 - What surprised you about how your system behaved
 - How did building this change how you think about real music recommenders
 - Where do you think human judgment still matters, even if the model seems "smart"
-
