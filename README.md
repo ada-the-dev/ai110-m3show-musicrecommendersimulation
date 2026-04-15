@@ -17,17 +17,13 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world recommendation systems have a lot of nuance in their workings and different types of data to make inferences from. For example, these systems may compare users to each other, so that similar users can receive similar recommendations, or so that the system can further reinforce that this recommendation is worth recommending to another similar user. 
 
-Some prompts to answer:
+There may also be factors like watch time, skips, paused, subscriptions/followed creators, time of day, location, and the device currently being used that can be utilized to provide a recommendation for the user. A collection of data based on the user's preferences, circumstances, and whims can be analyzed and extracted from to generate quantifiable results that determine whether a recommendation should be made to a user.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+Now, for my particular music recommender simulation, a weighted proximity scoring algorithm will be used in which every song is scored against a user's profile, and then these songs will be ranked against each other on this scoring. The top three ranking songs will be recommended to the user. This algorithm will reward a song's closeness to a user's profile.
 
-You can include a simple diagram or bullet list if helpful.
+Each song will receive a score in the range [0.0, 1.0]. The score is a weighted sum of four sub-scores, and then this score is divided by the total possible points (8 points) to normalize it. In particular, the genre, mood, energy, and acousticness features of each song will scored against the user profile's genre, mood, energy, and acousticness.
 
 ---
 
