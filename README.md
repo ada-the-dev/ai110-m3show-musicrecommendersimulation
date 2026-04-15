@@ -29,6 +29,7 @@ While this recommendation system will be able to better recommend songs that mat
 
 Here is a Mermaid Live that describes the data flow of my proposed and implemented music recommendation system:
 
+```
 flowchart TD
     A[(songs.csv)] -->|load_songs| B[Song List]
     C[User Profile\ngenre · mood · energy · target_acousticness] --> D
@@ -47,6 +48,11 @@ flowchart TD
     I --> J[Sort all pairs descending by score]
     J --> K[Slice top-k]
     K --> L[Top K Recommendations]
+```
+
+Here is an example result output that is generated from the CLI simulation of this program.
+
+![CLI Simulation Output (Results)](CLI-Simulation-Result-Output.png)
 
 ---
 
