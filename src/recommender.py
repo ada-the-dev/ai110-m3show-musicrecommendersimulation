@@ -1,6 +1,6 @@
 import csv
 from typing import List, Dict, Tuple, Optional
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 
 @dataclass
 class Song:
@@ -49,18 +49,30 @@ class Recommender:
         self.songs = songs
 
     def recommend(self, user: UserProfile, k: int = 5) -> List[Song]:
-        # TODO: Implement recommendation logic
-        return self.songs[:k]
+        """Score all songs against the user profile and return the top-k matches."""
+        user_prefs = {
+            "genre": user.favorite_genre,
+            "mood": user.favorite_mood,
+            "energy": user.target_energy,
+            "target_acousticness": user.target_acousticness,
+        }
+        scored = [(song, score_song(user_prefs, asdict(song))[0]) for song in self.songs]
+        scored.sort(key=lambda x: x[1], reverse=True)
+        return [song for song, _ in scored[:k]]
 
     def explain_recommendation(self, user: UserProfile, song: Song) -> str:
-        # TODO: Implement explanation logic
-        return "Explanation placeholder"
+        """Return a string explaining why a song was recommended for a user."""
+        user_prefs = {
+            "genre": user.favorite_genre,
+            "mood": user.favorite_mood,
+            "energy": user.target_energy,
+            "target_acousticness": user.target_acousticness,
+        }
+        _, reasons = score_song(user_prefs, asdict(song))
+        return "; ".join(reasons)
 
 def load_songs(csv_path: str) -> List[Dict]:
-    """
-    Loads songs from a CSV file.
-    Required by src/main.py
-    """
+    """Load and return all songs from a CSV file as a list of dictionaries."""
     float_fields = {"energy", "tempo_bpm", "valence", "danceability", "acousticness"}
     songs = []
 
@@ -89,11 +101,7 @@ def _proximity_label(proximity: float) -> str:
 
 
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
-    """
-    Scoring Rule: compute a normalized [0.0, 1.0] score for one song
-    against a user profile, and return a list of reasons explaining
-    how each feature contributed.
-    """
+    """Score one song against a user profile and return a (normalized_score, reasons) tuple."""
     raw = 0.0
     reasons = []
 
@@ -133,11 +141,7 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
 
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
-    """
-    Ranking Rule: score every song using score_song, sort descending by
-    score (higher = better match), and return the top-k results.
-    Each item in the returned list takes the form: (song_dict, score, explanation).
-    """
+    """Score every song, sort by score descending, and return the top-k results."""
     # Score every song — higher score means a better match for the user
     scored = [
         (song, score, "; ".join(reasons))
