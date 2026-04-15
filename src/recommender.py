@@ -29,6 +29,16 @@ class UserProfile:
     target_energy: float
     target_acousticness: float
 
+# ---------------------------------------------------------------------------
+# Scoring weights — mood-first strategy
+# Mood outweighs genre so the recommender favours vibe over category label.
+# ---------------------------------------------------------------------------
+WEIGHT_GENRE        = 2
+WEIGHT_MOOD         = 3
+WEIGHT_ENERGY       = 2
+WEIGHT_ACOUSTICNESS = 1
+MAX_SCORE = WEIGHT_GENRE + WEIGHT_MOOD + WEIGHT_ENERGY + WEIGHT_ACOUSTICNESS  # 8
+
 class Recommender:
     """
     OOP implementation of the recommendation logic.
