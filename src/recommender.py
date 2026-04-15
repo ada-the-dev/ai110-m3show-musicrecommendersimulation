@@ -1,3 +1,4 @@
+import csv
 from typing import List, Dict, Tuple, Optional
 from dataclasses import dataclass
 
@@ -60,9 +61,76 @@ def load_songs(csv_path: str) -> List[Dict]:
     Loads songs from a CSV file.
     Required by src/main.py
     """
-    # TODO: Implement CSV loading logic
-    print(f"Loading songs from {csv_path}...")
-    return []
+    float_fields = {"energy", "tempo_bpm", "valence", "danceability", "acousticness"}
+    songs = []
+
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            row["id"] = int(row["id"])
+            for field in float_fields:
+                row[field] = float(row[field])
+            songs.append(row)
+
+    #DEBUG
+    #for song in songs:
+    #    print(song)
+
+    return songs
+
+def _proximity_label(proximity: float) -> str:
+    """Return a qualitative label describing how close a proximity score is."""
+    if proximity >= 0.80:
+        return "close match"
+    elif proximity >= 0.50:
+        return "partial match"
+    else:
+        return "poor match"
+
+
+def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
+    """
+    Scoring Rule: compute a normalized [0.0, 1.0] score for one song
+    against a user profile, and return a list of reasons explaining
+    how each feature contributed.
+    """
+    raw = 0.0
+    reasons = []
+
+    # Categorical rule: award full WEIGHT_GENRE points for an exact match, 0 otherwise.
+    # Formula: points = WEIGHT_GENRE if song["genre"] == user genre else 0
+    if song["genre"] == user_prefs.get("genre"):
+        raw += WEIGHT_GENRE
+        reasons.append(f"genre match (+{WEIGHT_GENRE:.1f})")
+    else:
+        reasons.append(f"no genre match (+0.0)")
+
+    # Categorical rule: award full WEIGHT_MOOD points for an exact match, 0 otherwise.
+    # Formula: points = WEIGHT_MOOD if song["mood"] == user mood else 0
+    if song["mood"] == user_prefs.get("mood"):
+        raw += WEIGHT_MOOD
+        reasons.append(f"mood match (+{WEIGHT_MOOD:.1f})")
+    else:
+        reasons.append(f"no mood match (+0.0)")
+
+    # Proximity rule: reward closeness to the user's target energy level.
+    # Formula: proximity = 1.0 - |song energy - target energy|
+    #          points = proximity * WEIGHT_ENERGY
+    energy_proximity = 1.0 - abs(song["energy"] - user_prefs.get("energy", 0.5))
+    energy_points = WEIGHT_ENERGY * energy_proximity
+    raw += energy_points
+    reasons.append(f"energy proximity: {energy_proximity:.2f} — {_proximity_label(energy_proximity)} (+{energy_points:.2f})")
+
+    # Proximity rule: reward closeness to the user's target acousticness level.
+    # Formula: proximity = 1.0 - |song acousticness - target acousticness|
+    #          points = proximity * WEIGHT_ACOUSTICNESS
+    acoustic_proximity = 1.0 - abs(song["acousticness"] - user_prefs.get("target_acousticness", 0.5))
+    acoustic_points = WEIGHT_ACOUSTICNESS * acoustic_proximity
+    raw += acoustic_points
+    reasons.append(f"acousticness proximity: {acoustic_proximity:.2f} — {_proximity_label(acoustic_proximity)} (+{acoustic_points:.2f})")
+
+    return raw / MAX_SCORE, reasons
+
 
 def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tuple[Dict, float, str]]:
     """
