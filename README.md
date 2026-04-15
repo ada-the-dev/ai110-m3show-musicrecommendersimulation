@@ -21,9 +21,32 @@ Real-world recommendation systems have a lot of nuance in their workings and dif
 
 There may also be factors like watch time, skips, paused, subscriptions/followed creators, time of day, location, and the device currently being used that can be utilized to provide a recommendation for the user. A collection of data based on the user's preferences, circumstances, and whims can be analyzed and extracted from to generate quantifiable results that determine whether a recommendation should be made to a user.
 
-Now, for my particular music recommender simulation, a weighted proximity scoring algorithm will be used in which every song is scored against a user's profile, and then these songs will be ranked against each other on this scoring. The top three ranking songs will be recommended to the user. This algorithm will reward a song's closeness to a user's profile.
+Now, for my particular music recommender simulation, a weighted proximity scoring algorithm will be used in which every song is scored against a user's profile, and then these songs will be ranked against each other on this scoring. The algorithm will be a  "mood-first" algorithm since this has the heaviest weight. The top three ranking songs will be recommended to the user. This algorithm will reward a song's closeness to a user's profile.
 
 Each song will receive a score in the range [0.0, 1.0]. The score is a weighted sum of four sub-scores, and then this score is divided by the total possible points (8 points) to normalize it. In particular, the genre, mood, energy, and acousticness features of each song will scored against the user profile's genre, mood, energy, and acousticness.
+
+While this recommendation system will be able to better recommend songs that match a user's mood and overall preference, one potential drawback to the weight decision, and, therefore the recommedation algorithm, is that users who greatly value genre over mood (a.k.a. "genre-loyalists") will have a higher chance of being exposed to song genres that do align with their preferences and music-related boundaries.
+
+Here is a Mermaid Live that describes the data flow of my proposed and implemented music recommendation system:
+
+flowchart TD
+    A[(songs.csv)] -->|load_songs| B[Song List]
+    C[User Profile\ngenre · mood · energy · target_acousticness] --> D
+
+    B -->|one song at a time| D
+
+    subgraph SCORE["score_song — repeats for every song"]
+        D[Genre match?\n× WEIGHT_GENRE 2]
+        D --> E[Mood match?\n× WEIGHT_MOOD 3]
+        E --> F["Energy proximity\n1 - abs song.energy - target x 2"]
+        F --> G["Acousticness proximity\n1 - abs song.acousticness - target x 1"]
+        G --> H[Sum raw score / 8\nnormalized score 0.0 to 1.0]
+    end
+
+    H --> I["(song, score) pairs"]
+    I --> J[Sort all pairs descending by score]
+    J --> K[Slice top-k]
+    K --> L[Top K Recommendations]
 
 ---
 
